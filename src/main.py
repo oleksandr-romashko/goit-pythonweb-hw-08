@@ -103,5 +103,5 @@ if __name__ == "__main__":
     import uvicorn
 
     uvicorn.run(
-        "src.main:app", host=config.DB_HOST, port=config.WEB_PORT, reload=config.DEBUG
+        "src.main:app", host="0.0.0.0", port=config.WEB_PORT, reload=config.DEBUG
     )
