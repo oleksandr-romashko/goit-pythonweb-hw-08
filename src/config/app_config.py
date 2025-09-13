@@ -15,11 +15,11 @@ class Config:
     """Holds configuration values for the application, such as database URLs."""
 
     WEB_PORT = int(os.getenv("WEB_PORT", "3000"))
-    DEBUG = os.getenv("DEBUG", "False") == "True"
+    DEBUG = os.getenv("DEBUG", "False") == "False"
 
     DB_HOST: str = os.getenv("DB_HOST", "localhost")
     DB_PORT: int = int(os.getenv("DB_PORT", "5432"))
-    DB_NAME: str = os.getenv("DB_NAME", "todo_app")
+    DB_NAME: str = os.getenv("DB_NAME", "postgres")
     DB_USER: str = os.getenv("DB_USER", "postgres")
     DB_PASSWORD: str = os.getenv("DB_PASSWORD", "")
 
