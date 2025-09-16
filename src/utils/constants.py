@@ -2,5 +2,8 @@
 Common application-wide constants for messages and other reusable values.
 """
 
-MESSAGE_RESOURCE_NOT_FOUND = "{resource} with {key} '{value}' not found"
-MESSAGE_RESOURCE_ALREADY_EXISTS = "{resource} with {key} '{value}' already exists"
+# ERRORS
+
+MESSAGE_ERROR_CONTACT_NOT_FOUND = "Contact not found"
+MESSAGE_ERROR_RESOURCE_ALREADY_EXISTS = "Contact already exists"
+MESSAGE_ERROR_INTERNAL_SERVER_ERROR = "Internal Server Error"
