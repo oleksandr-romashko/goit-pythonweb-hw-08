@@ -1,9 +1,8 @@
 """
-Database session management.
+Async SQLAlchemy session management.
 
-Defines an async SQLAlchemy engine and session manager for use
-throughout the application. Provides a FastAPI dependency for
-database sessions.
+Creates a singleton database engine and provides a FastAPI dependency
+for acquiring and closing sessions.
 """
 
 import contextlib
@@ -12,6 +11,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     async_sessionmaker,
+    AsyncSession,
     create_async_engine,
 )
 
@@ -23,14 +23,18 @@ class DatabaseSessionManager:
 
     def __init__(self, url: str):
         """Initialize the engine and session maker with the given database URL."""
-        self._engine: AsyncEngine | None = create_async_engine(url)
-        self._session_maker: async_sessionmaker = async_sessionmaker(
+        self._engine: AsyncEngine = create_async_engine(url)
+        self._session_maker: async_sessionmaker[AsyncSession] = async_sessionmaker(
             autoflush=False, autocommit=False, bind=self._engine
         )
 
     @contextlib.asynccontextmanager
     async def session(self):
-        """Provide an async context manager for a database session."""
+        """
+        Yields an async database session and handle rollback/close.
+
+        Provides an async context manager for a database session.
+        """
         if self._session_maker is None:
             raise RuntimeError("Database session is not initialized")
         session = self._session_maker()
@@ -48,6 +52,6 @@ session_manager = DatabaseSessionManager(config.DB_URL)
 
 
 async def get_db():
-    """FastAPI dependency to provide an async database session."""
+    """FastAPI dependency to provide an async single-use database session."""
     async with session_manager.session() as session:
         yield session
