@@ -72,13 +72,15 @@ async def get_all_contacts(
 
 
 async def get_contacts_upcoming_birthdays(
+    skip: int,
+    limit: int,
     db: AsyncSession,
     today: date | None = None,
     upcoming_days: int | None = None,
     move_feb29_to_feb_28: bool | None = None,
 ) -> List[Dict]:
     """
-    Return contacts with upcoming birthdays in 7 days.
+    Return a paginated list of contacts with upcoming birthdays in 7 days.
 
     Adds `celebration_date` field to the respond object, that
     - equals birthdate if it's a weekday (Monday - Friday)
@@ -107,6 +109,8 @@ async def get_contacts_upcoming_birthdays(
                 func.lower(Contact.first_name),
                 func.lower(Contact.last_name),
             )
+            .offset(skip)
+            .limit(limit)
         )
     else:
         # wraps to next month

@@ -1,12 +1,13 @@
 """
 Main entry point for the FastAPI application.
 
-This module initializes the FastAPI app, registers all routers, and
-starts the Uvicorn development server if run as a script.
+Initializes the FastAPI app, registers all routers, and configures
+global exception handlers. If run directly, starts a Uvicorn server.
 """
 
 import traceback
 from contextlib import asynccontextmanager
+from typing import AsyncIterator
 
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
@@ -14,34 +15,47 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 
-from src.api import root, utils
+from src.api import root, utils, contacts
 from src.config.app_config import config
+from src.utils.constants import MESSAGE_ERROR_INTERNAL_SERVER_ERROR
 from src.utils.logger import logger
 
 
 @asynccontextmanager
-async def lifespan(_app: FastAPI):  # pylint: disable=unused-argument
-    """Lifespan context manager for application startup and shutdown."""
-    logger.info("Application starting up")
+async def lifespan(
+    _app: FastAPI,
+) -> AsyncIterator[None]:  # pylint: disable=unused-argument
+    """
+    Application lifespan context manager.
+
+    Runs once on startup and shutdown. Place resource initialization
+    or cleanup tasks here (e.g., database connections).
+    """
+    logger.info("Application startup initiated")
     yield
-    logger.info("Application shutting down")
+    logger.info("Application shutdown complete")
 
 
 app = FastAPI(
     lifespan=lifespan,
     title="Contacts Manager API",
-    description="API to store and manage your contacts.",
+    description="REST API for storing and managing personal contacts.",
 )
 
 app.include_router(root.router)
 app.include_router(utils.router, prefix="/api")
+app.include_router(contacts.router, prefix="/api")
 
 
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(
     request: Request, exc: RequestValidationError
 ) -> JSONResponse:
-    """Catches Pydantic/body/query validation failures (default status 422)."""
+    """
+    Handle Pydantic/body/query validation failures (HTTP 422).
+
+    Logs the validation errors and returns the standard FastAPI error format.
+    """
     logger.warning(
         "Validation error on %s %s: %s",
         request.method,
@@ -55,10 +69,10 @@ async def validation_exception_handler(
 
 
 @app.exception_handler(StarletteHTTPException)
-def http_exception_handler(
+async def http_exception_handler(
     request: Request, exc: StarletteHTTPException
 ) -> JSONResponse:
-    """Handle all Starlet and FastAPI HTTPExceptions (incl. 404)."""
+    """Handle all Starlette and FastAPI HTTPExceptions and unify response."""
     logger.info(
         "HTTP %s: %s %s%s",
         exc.status_code,
@@ -68,7 +82,7 @@ def http_exception_handler(
     )
     return JSONResponse(
         status_code=exc.status_code,
-        content={"detail": str(exc.detail)},
+        content={"detail": exc.detail},
     )
 
 
@@ -76,26 +90,20 @@ def http_exception_handler(
 async def handle_global_exception(
     request: Request, exc: Exception  # pylint: disable=unused-argument
 ) -> JSONResponse:
-    """
-    Catch all unhandled exceptions.
-
-    Last-resort catch-all to avoid crashing and to log tracebacks.
-    Logs the full traceback. Returns a safe 500 JSON response in production,
-    and includes the exception message and traceback in debug mode.
-    """
+    """Catch all unhandled exceptions."""
     logger.exception("Unhandled exception: %s", exc)
     if config.DEBUG:
         return JSONResponse(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             content={
-                "detail": "Internal Server Error",
+                "detail": f"Unhandled exceptions caused {MESSAGE_ERROR_INTERNAL_SERVER_ERROR}",
                 "error": str(exc),
                 "traceback": traceback.format_exc(),
             },
         )
     return JSONResponse(
         status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-        content={"detail": "Internal Server Error"},
+        content={"detail": MESSAGE_ERROR_INTERNAL_SERVER_ERROR},
     )
 
 
