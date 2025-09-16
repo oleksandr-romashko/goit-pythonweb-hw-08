@@ -1,11 +1,16 @@
 {
     "cSpell.words": [
+        "asyncpg",
         "autoflush",
         "dotenv",
+        "fastapi",
         "healthchecker",
         "ilike",
         "levelname",
         "onupdate",
-        "sessionmaker"
+        "pydantic",
+        "sessionmaker",
+        "sqlalchemy",
+        "uvicorn"
     ]
 }
