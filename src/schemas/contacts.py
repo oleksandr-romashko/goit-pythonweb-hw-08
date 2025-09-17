@@ -8,12 +8,7 @@ and retrieving contacts, plus models for special responses.
 from typing import Optional
 from datetime import datetime, date
 
-from pydantic import (
-    BaseModel,
-    ConfigDict,
-    Field,
-    EmailStr,
-)
+from pydantic import BaseModel, ConfigDict, Field, EmailStr, field_validator
 
 
 class IdMixin(BaseModel):
@@ -86,16 +81,25 @@ class ContactBaseRequiredSchema(BaseModel):
         json_schema_extra={"example": date(2000, 1, 4).isoformat()},
     )
 
+    @field_validator("birthdate")
+    def check_birthdate_not_in_future(  # pylint: disable=no-self-argument
+        cls, value: date
+    ) -> date:
+        """Performs check if birthday is in the past or today"""
+        if value > date.today():
+            raise ValueError("Birthdate cannot be in the future")
+        return value
+
 
 class ContactModelSchema(InfoMixin, ContactBaseRequiredSchema):
     """Full contact schema including optional notes."""
 
 
-class ContactResponseSchema(BaseORMModel, IdMixin, TimestampsMixin, ContactModelSchema):
+class ContactResponseSchema(BaseORMModel, TimestampsMixin, ContactModelSchema, IdMixin):
     """Schema for returning a contact in API responses."""
 
 
-class ContactCelebrationResponseSchema(BaseORMModel, IdMixin, ContactModelSchema):
+class ContactCelebrationResponseSchema(BaseORMModel, ContactModelSchema, IdMixin):
     """Schema for contacts with upcoming birthday celebrations."""
 
     celebration_date: date = Field(
@@ -136,3 +140,12 @@ class ContactPartialUpdateSchema(InfoMixin, BaseModel):
         description="Birthday date",
         json_schema_extra={"example": date(2000, 1, 4).isoformat()},
     )
+
+    @field_validator("birthdate")
+    def check_birthdate_not_in_future(  # pylint: disable=no-self-argument
+        cls, value: date
+    ) -> date:
+        """Performs check if birthday is in the past or today"""
+        if value > date.today():
+            raise ValueError("Birthdate cannot be in the future")
+        return value
