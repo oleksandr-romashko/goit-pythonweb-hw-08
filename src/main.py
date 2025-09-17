@@ -11,6 +11,7 @@ from typing import AsyncIterator
 
 from fastapi import FastAPI, Request, status
 from fastapi.exceptions import RequestValidationError
+from fastapi.exception_handlers import request_validation_exception_handler
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
@@ -54,7 +55,9 @@ async def validation_exception_handler(
     """
     Handle Pydantic/body/query validation failures (HTTP 422).
 
-    Logs the validation errors and returns the standard FastAPI error format.
+    Logs the validation error and then delegates to FastAPI's
+    default `request_validation_exception_handler` so the
+    response shape and OpenAPI schema remain unchanged.
     """
     logger.warning(
         "Validation error on %s %s: %s",
@@ -62,10 +65,8 @@ async def validation_exception_handler(
         request.url,
         exc.errors(),
     )
-    return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        content={"detail": exc.errors()},
-    )
+    # Delegate to FastAPI's default implementation
+    return await request_validation_exception_handler(request, exc)
 
 
 @app.exception_handler(StarletteHTTPException)
