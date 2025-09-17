@@ -108,9 +108,14 @@ async def handle_global_exception(
     )
 
 
-if __name__ == "__main__":
+def main() -> None:
+    """Run Uvicorn server for development."""
     import uvicorn
 
     uvicorn.run(
         "src.main:app", host="0.0.0.0", port=config.WEB_PORT, reload=config.DEBUG
     )
+
+
+if __name__ == "__main__":
+    main()
