@@ -61,7 +61,7 @@ async def get_all_contacts(
         stmt.order_by(
             func.lower(Contact.first_name),
             func.lower(Contact.last_name),
-            func.lower(Contact.birthdate),
+            Contact.birthdate,
         )
         .offset(skip)
         .limit(limit)
