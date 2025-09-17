@@ -34,15 +34,15 @@ Main features:
   - [General Requirements](#general-requirements)
 - [Task Solution](#task-solution)
   - [Solution Description](#solution-description)
-- [Project Setup \& Run Instructions](#project-setup--run-instructions)
-  - [Prerequisites](#prerequisites)
-  - [Setting Up the Development Environment](#setting-up-the-development-environment)
-    - [1. Clone the Repository and Install Dependencies](#1-clone-the-repository-and-install-dependencies)
-    - [2. Setup database](#2-setup-database)
-    - [3. Setup application connection to the database](#3-setup-application-connection-to-the-database)
-    - [4. Migrate and synchronize database ORM with database schema](#4-migrate-and-synchronize-database-orm-with-database-schema)
-    - [5. Start FastAPI application](#5-start-fastapi-application)
-    - [6. Access API docs and make API requests](#6-access-api-docs-and-make-api-requests)
+  - [Project Setup \& Run Instructions](#project-setup--run-instructions)
+    - [Prerequisites](#prerequisites)
+    - [Setting Up the Development Environment](#setting-up-the-development-environment)
+      - [1. Clone the Repository and Install Dependencies](#1-clone-the-repository-and-install-dependencies)
+      - [2. Setup database](#2-setup-database)
+      - [3. Setup application connection to the database](#3-setup-application-connection-to-the-database)
+      - [4. Migrate and synchronize database ORM with database schema](#4-migrate-and-synchronize-database-orm-with-database-schema)
+      - [5. Start FastAPI application](#5-start-fastapi-application)
+      - [6. Access API docs and make API requests](#6-access-api-docs-and-make-api-requests)
 - [License](#license)
 
 ## Task Requirements
@@ -99,11 +99,11 @@ In addition to standard CRUD operations, the API must also:
 
 The solution consists of a **PostgreSQL database** running in a Docker container, a **FastAPI server** for handling HTTP API requests and managing contacts in the database, and **Swagger/OpenAPI documentation** that describes all available endpoints and allows you to try out requests directly from the documentation.
 
-## Project Setup & Run Instructions
+### Project Setup & Run Instructions
 
 This guide will help you set up the environment and run the project.
 
-### Prerequisites
+#### Prerequisites
 
 Before you begin, make sure you have the following installed:
 
@@ -115,9 +115,9 @@ Before you begin, make sure you have the following installed:
   * **[VS Code](https://code.visualstudio.com/download)** or another IDE — Recommended for browsing and editing the project source code, run using run scripts and overall development.
   * **DBeaver** or **PgAdmin** to access and see you PostgreSQL database information
 
-### Setting Up the Development Environment
+#### Setting Up the Development Environment
 
-#### 1. Clone the Repository and Install Dependencies
+##### 1. Clone the Repository and Install Dependencies
 
 1. Clone repository:
     ```bash
@@ -130,7 +130,7 @@ Before you begin, make sure you have the following installed:
     poetry install
     ```
 
-#### 2. Setup database
+##### 2. Setup database
 
 Dada are stored in Postgres database. To easily setup our own one for testing purposes we may use Docker.
 
@@ -153,7 +153,7 @@ where:
 - `5432:5432` - exposed external/internal container ports to access postgres database from the outside
 - `postgres` - Docker image name to base our container on (we use PostgreSQL, so `postgres` in our case)
 
-#### 3. Setup application connection to the database
+##### 3. Setup application connection to the database
 
 For app to access data in database we need correctly setup connection configuration.
 
@@ -181,7 +181,7 @@ Make sure you `DB_PASSWORD` value correspond to `POSTGRES_PASSWORD` during Docke
 
 Now our app should be set up to connect to our database in Docker container.
 
-#### 4. Migrate and synchronize database ORM with database schema
+##### 4. Migrate and synchronize database ORM with database schema
 
 As soon as we may connect to database we may perform queries. But our database has no tables or structure that conform to one set in ORM yet.
 
@@ -210,7 +210,7 @@ Other useful Alembic commands:
 * `poetry run alembic downgrade <revision hash>` - downgrade to certain revision
 * `poetry run alembic downgrade -1` - downgrade to the previous revision
 
-#### 5. Start FastAPI application
+##### 5. Start FastAPI application
 
 Before we may start our FastAPI application it is wise to check our application settings. Check your `.env` file and change FastApi application settings if necessary:
 
@@ -234,7 +234,7 @@ poetry run python -m src.main
 
 This will start application and it will be accessible at [http://0.0.0.0:3000](http://0.0.0.0:3000) (depending on your `WEB_PORT` settings).
 
-#### 6. Access API docs and make API requests
+##### 6. Access API docs and make API requests
 
 You may access Swagger API documentation at [http://0.0.0.0:3000/docs](http://0.0.0.0:3000/docs) and make API requests from there.
 
